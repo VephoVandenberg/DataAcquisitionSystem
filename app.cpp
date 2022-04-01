@@ -13,13 +13,18 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
     QWidget *appWindow = new QWidget;
 
-    QPushButton *button = new QPushButton("Let us see this", appWindow);
-    button->setGeometry(20, 10, 30, 30);
+    QVBoxLayout layout;
+    QTabWidget tabs;
+    
+    HDDWidget *HDDTab = new HDDWidget("/home/", "*",
+				      "HDD_results",
+				      &tabs);
+    tabs.setFocus();
+    tabs.addTab(HDDTab, "&HDD");
 
-
-    QVBoxLayout *layout = new QVBoxLayout;
-
-    appWindow->setLayout(layout);
+    layout.addWidget(&tabs);
+    
+    appWindow->setLayout(&layout);
     appWindow->resize(800, 600);
     appWindow->show();
 

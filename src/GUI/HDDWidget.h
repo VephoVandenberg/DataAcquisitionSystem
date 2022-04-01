@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QtWidgets>
 #include <QPushButton>
+#include <QGridLayout>
 
 class HDDWidget : public QWidget
 {
@@ -10,19 +11,22 @@ class HDDWidget : public QWidget
     
 public:
     HDDWidget(QString path, QString mask, QString frame, QWidget *parent = 0);
-    ~HDDWidget() {};
+    ~HDDWidget();
+
+public slots:
     
 private:
-    QFileSystemWatcher watcher;
-    QGridLayout grid;
+    QFileSystemWatcher m_watcher;
+    QGridLayout m_grid;
 
-    QPushButton confirmDir;
-    QPushButton start;
+    QPushButton m_confirmDir;
+    QPushButton m_start;
 
-    QProgressBar progress;
+    QProgressBar m_progress;
 
-    QTextEdit list;
+    QTextEdit m_list;
 
-    QLabel label1;
-    QLabel label2;
+    QLabel m_label1, m_label2;
+
+    QLineEdit m_lDir, m_lMask, m_lFName;
 };
