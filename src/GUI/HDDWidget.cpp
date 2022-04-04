@@ -1,18 +1,20 @@
 #include "HDDWidget.h"
 
 HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent) :
-    QWidget(parent), m_watcher(this), m_label1("Chose directory"), m_label2("Enter mask"),
-    m_confirmDir("Browse"), m_lDir(path), m_lMask(mask), m_lFName(frame)
+    QWidget(parent), m_watcher(this),
+    m_label1("Chose directory"), m_label2("Enter mask"), m_label3("Report name"),
+    m_confirmDir("Browse"), m_start("Start"), m_lDir(path), m_lMask(mask), m_lFName(frame)
 {
     m_watcher.addPath(path);
     m_watcher.setObjectName("HDDWatcher");
 
     m_list.setReadOnly(true);
 
-    m_grid.setMargin(5);
-    m_grid.setSpacing(15);
+    m_grid.setMargin(m_margin);
+    m_grid.setSpacing(m_spacing);
     m_grid.addWidget(&m_label1, 0, 0);
     m_grid.addWidget(&m_label2, 1, 0);
+    m_grid.addWidget(&m_label3, 2, 0);
     m_grid.addWidget(&m_lDir, 0, 1, 1, 2);
     m_grid.addWidget(&m_lMask, 1, 1, 1, 2);
     m_grid.addWidget(&m_lFName, 2, 1, 1, 2);
@@ -25,9 +27,51 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
     m_start.setFocus();
 
     m_lDir.setObjectName("lDirEdit");
+
+    connect(&m_confirmDir, SIGNAL(clicked()), SLOT(choseDirBtnClicked()));
+    connect(&m_start, SIGNAL(clicked()), SLOT(startBtnClicked()));
+    connect(&m_lDir, SIGNAL(textEdited()), SLOT(dirChanged()()));
+    connect(&m_watcher, SIGNAL(dirChanged(QString)), SLOT(outputChkBoxClicked()()));
+
+    // Text coloring
+    m_editText.setColor(QPalette::Text, Qt::green);
+    m_lDir.setPalette(m_editText);
+    m_lMask.setPalette(m_editText);
+    m_lFName.setPalette(m_editText);
 }
 
 HDDWidget::~HDDWidget()
 {
     
+}
+
+void HDDWidget::choseDirBtnClicked()
+{
+    QString str = QFileDialog::getExistingDirectory(0,
+						    "Choose directory to analyze",
+						    m_lDir.text());
+    if (!str.isEmpty())
+    {
+	m_lDir.setText(str);
+    }
+}
+
+void HDDWidget::dataCollectionFinished(QString status)
+{
+
+}
+
+void HDDWidget::startBtnClicked()
+{
+
+}
+
+void HDDWidget::dirChanged()
+{
+
+}
+
+void HDDWidget::outputChkBoxClicked()
+{
+
 }
