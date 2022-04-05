@@ -58,17 +58,29 @@ void HDDWidget::choseDirBtnClicked()
 
 void HDDWidget::dataCollectionFinished(QString status)
 {
-
+    m_start.setEnabled(true);    
 }
 
 void HDDWidget::startBtnClicked()
 {
-
+    m_start.setEnabled(false);
+    m_list.clear();
 }
 
 void HDDWidget::dirChanged()
 {
+    QDir buf(QDir(m_lDir.text()));
+    bool isValid = buf.text();
 
+    if (isValid)
+    {
+	m_watcher.addPath(m_lDir.text());
+	m_lDir.setPalette(&m_editText);
+	m_start.setEnabled(true);
+	return;
+    }
+
+    m_start.setEnabled(false);
 }
 
 void HDDWidget::outputChkBoxClicked()

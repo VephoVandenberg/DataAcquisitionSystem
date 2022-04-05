@@ -6,6 +6,9 @@
 #include "src/GUI/HDDWidget.h"
 #include "src/GUI/RAMWidget.h"
 
+const int width = 800;
+const int height = 200;
+
 int main(int argc, char **argv)
 {
     // Window initialization
@@ -25,8 +28,10 @@ int main(int argc, char **argv)
     layout.addWidget(&tabs);
     
     appWindow->setLayout(&layout);
-    appWindow->resize(800, 600);
+    appWindow->resize(width, height);
     appWindow->show();
 
-    return app.exec();
+    app.exec();
+
+    return 0;
 }
