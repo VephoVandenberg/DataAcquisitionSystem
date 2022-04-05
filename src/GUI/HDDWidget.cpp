@@ -70,12 +70,12 @@ void HDDWidget::startBtnClicked()
 void HDDWidget::dirChanged()
 {
     QDir buf(QDir(m_lDir.text()));
-    bool isValid = buf.text();
+    bool isValid = buf.exists();
 
     if (isValid)
     {
 	m_watcher.addPath(m_lDir.text());
-	m_lDir.setPalette(&m_editText);
+	m_lDir.setPalette(m_editText);
 	m_start.setEnabled(true);
 	return;
     }

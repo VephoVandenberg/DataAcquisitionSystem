@@ -5,6 +5,7 @@
 
 #include "src/GUI/HDDWidget.h"
 #include "src/GUI/RAMWidget.h"
+#include "src/AGENTS/agent.h"
 
 const int width = 800;
 const int height = 200;

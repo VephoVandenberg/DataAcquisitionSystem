@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QWidgets>
+#include <QWidget>
 #include <QtWidgets>
 #include <QDir>
 #include <QFile>
@@ -11,7 +11,7 @@ class Agent : public QWidget
     Q_OBJECT
     
 public:
-    Agent(QTextEdit &out, QProgressBar &bar, QWidget *parent = 0);
+    Agent(QTextEdit *out, QProgressBar *bar, QWidget *parent = 0);
     ~Agent();
 
     void start();
@@ -26,8 +26,8 @@ private:
     
 private:
     QProcess *m_analyzerProcess;
-    QTextEdit m_output;
-    QProgressBar m_progress;
+    QTextEdit *m_output;
+    QProgressBar *m_progress;
 
     bool m_checkHiddenDirs, m_checkHiddenFiles, m_outputFlag;
     unsigned int m_counter;
