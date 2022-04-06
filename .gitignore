@@ -1,8 +1,8 @@
 *~
 #*
 *#
-*o
 *stash
-*.token
+*token
+moc*
 
 UniversityProject

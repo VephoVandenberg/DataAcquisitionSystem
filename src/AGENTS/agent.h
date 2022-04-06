@@ -22,14 +22,15 @@ public slots:
     void parserSendData();
     
 private:
-    void countAndGetFiles(QDir dir, QStringList &lst);
+    void countAndGetFiles(QDir dir, QStringList &list);
     
 private:
+    QDir m_root;
     QProcess *m_analyzerProcess;
     QTextEdit *m_output;
     QProgressBar *m_progress;
 
     bool m_checkHiddenDirs, m_checkHiddenFiles, m_outputFlag;
     unsigned int m_counter;
-    QString m_masks, m_fName;
+    QString m_masks, m_resultFName;
 };

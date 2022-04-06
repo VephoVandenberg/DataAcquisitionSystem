@@ -3,7 +3,11 @@
 HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent) :
     QWidget(parent), m_watcher(this),
     m_label1("Chose directory"), m_label2("Enter mask"), m_label3("Report name"),
-    m_confirmDir("Browse"), m_start("Start"), m_lDir(path), m_lMask(mask), m_lFName(frame)
+    m_confirmDir("Browse"), m_start("Start"),
+    m_lDir(path), m_lMask(mask), m_lFName(frame),
+    m_needHiddenDirs("Analyze files int hidden folders"),
+    m_needHiddenFiles("Analyze hidden files"),
+    m_needOutput("Output")
 {
     m_watcher.addPath(path);
     m_watcher.setObjectName("HDDWatcher");
@@ -18,6 +22,9 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
     m_grid.addWidget(&m_lDir, 0, 1, 1, 2);
     m_grid.addWidget(&m_lMask, 1, 1, 1, 2);
     m_grid.addWidget(&m_lFName, 2, 1, 1, 2);
+    m_grid.addWidget(&m_needOutput, 3, 0);
+    m_grid.addWidget(&m_needHiddenDirs, 3, 1);
+    m_grid.addWidget(&m_needHiddenFiles, 3, 2);
     m_grid.addWidget(&m_confirmDir, 0, 3);
     m_grid.addWidget(&m_start, 1, 3);
     m_grid.addWidget(&m_progress, 5, 0, 1, 4);
@@ -58,7 +65,10 @@ void HDDWidget::choseDirBtnClicked()
 
 void HDDWidget::dataCollectionFinished(QString status)
 {
-    m_start.setEnabled(true);    
+    m_start.setEnabled(true);
+    m_needOutput.setEnabled(true);
+    QMessageBox::information(this, "Hard drive parser", "Finished " + status);
+    m_lFName.setText("HDD_results_" + QDateTime::currentDateTime().toString("hh.mm.ss_dd.MM.yyyy") + ".csv");
 }
 
 void HDDWidget::startBtnClicked()
@@ -80,6 +90,7 @@ void HDDWidget::dirChanged()
 	return;
     }
 
+    m_lDir.setPalette(m_editText);
     m_start.setEnabled(false);
 }
 

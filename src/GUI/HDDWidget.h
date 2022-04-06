@@ -30,7 +30,8 @@ private:
     QLabel m_label1, m_label2, m_label3;
     QLineEdit m_lDir, m_lMask, m_lFName;
     QPalette m_editText;
-
+    QCheckBox m_needOutput, m_needHiddenFiles, m_needHiddenDirs;
+    
     int m_margin = 5;
     int m_spacing = 10;
 };
