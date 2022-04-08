@@ -12,6 +12,10 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
     m_watcher.addPath(path);
     m_watcher.setObjectName("HDDWatcher");
 
+    // Analyser initialization
+    m_agent = new Agent(&m_list, &m_progress, this);
+    m_agent->setOutputFlags(m_needOutput.isChecked());
+
     m_list.setReadOnly(true);
 
     m_grid.setMargin(m_margin);
@@ -39,6 +43,7 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
     connect(&m_start, SIGNAL(clicked()), SLOT(startBtnClicked()));
     connect(&m_lDir, SIGNAL(textEdited()), SLOT(dirChanged()()));
     connect(&m_watcher, SIGNAL(dirChanged(QString)), SLOT(outputChkBoxClicked()()));
+    connect(&m_needOutput, SIGNAL(clicked(bool)), SLOT(outputChkBoxClicked()));
 
     // Text coloring
     m_editText.setColor(QPalette::Text, Qt::green);
@@ -75,6 +80,13 @@ void HDDWidget::startBtnClicked()
 {
     m_start.setEnabled(false);
     m_list.clear();
+
+    m_agent->setRootDirectory(QDir(m_lDir.text()));
+    m_agent->setAnalysisFlags(m_lMask.text(),
+			      m_needHiddenDirs.isChecked(),
+			      m_needHiddenFiles.isChecked());
+    m_agent->setFName(m_lFName.text() + (m_lFName.text().endsWith(".csv") ? "" : ".csv"));
+    m_agent->start();
 }
 
 void HDDWidget::dirChanged()
@@ -96,5 +108,5 @@ void HDDWidget::dirChanged()
 
 void HDDWidget::outputChkBoxClicked()
 {
-
+    m_agent->setOutputFlags(m_needOutput.isChecked());
 }

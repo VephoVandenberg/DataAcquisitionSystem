@@ -5,6 +5,8 @@
 #include <QPushButton>
 #include <QGridLayout>
 
+#include "../AGENTS/agent.h"
+
 class HDDWidget : public QWidget
 {
     Q_OBJECT
@@ -34,4 +36,6 @@ private:
     
     int m_margin = 5;
     int m_spacing = 10;
+
+    Agent *m_agent;
 };

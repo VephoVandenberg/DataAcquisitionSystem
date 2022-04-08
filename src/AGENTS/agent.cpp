@@ -36,7 +36,37 @@ void Agent::start()
 
 void Agent::parserSendData()
 {
+    QString result = QString::fromLocal8Bit(m_analyzerProcess->readAll());
 
+    foreach(QString str, result.split('\n'))
+    {
+	if (str.startsWith("[warn]"))
+	{
+	    continue;
+	}
+
+	if (str.startsWith("#"))
+	{
+	    m_output->append(str.mid(1, str.size() - 2));
+	}
+	else if (str.toInt() >= m_progress->value())
+	{
+	    m_progress->setValue(str.toInt());
+	}
+
+	if (str.startsWith("#Module work has been finished"))
+	{
+	    parserFinished(100, QProcess::NormalExit);
+	}
+    }
+}
+
+void Agent::parserFinished(int exitCode, QProcess::ExitStatus status)
+{
+    emit pfinished("Success!");
+    m_output->append("Parser successfully finished its work!");
+    QApplication::alert(this);
+    m_progress->setValue(0);
 }
 
 void Agent::countAndGetFiles(QDir dir, QStringList &list)
@@ -65,4 +95,26 @@ void Agent::countAndGetFiles(QDir dir, QStringList &list)
     }
 }
 
+void Agent::setOutputFlags(bool needOut)
+{
+    m_outputFlag = needOut;
+}
 
+void Agent::setRootDirectory(QDir dir)
+{
+    m_root = dir;
+}
+
+void Agent::setFName(QString fName)
+{
+    m_resultFName = fName;
+}
+
+void Agent::setAnalysisFlags(QString masksStr,
+			     bool hiddenDirs,
+			     bool hiddenFiles)
+{
+    m_masks = masksStr;
+    m_checkHiddenDirs = hiddenDirs;
+    m_checkHiddenFiles = hiddenFiles;
+}

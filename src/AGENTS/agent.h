@@ -15,11 +15,19 @@ public:
     ~Agent();
 
     void start();
-    void setFname(QString fName);
-    void setOutputFlag(bool needOut);
+    void setFName(QString fName);
+    void setRootDirectory(QDir dir);
+    void setOutputFlags(bool needOut);
+    void parserFinished(int exitCode, QProcess::ExitStatus status);
+    void setAnalysisFlags(QString masksStr = "",
+			  bool hiddenDirs = true,
+			  bool hiddenFiles = true);
 	    
 public slots:
     void parserSendData();
+
+signals:
+    void pfinished(QString status);
     
 private:
     void countAndGetFiles(QDir dir, QStringList &list);
