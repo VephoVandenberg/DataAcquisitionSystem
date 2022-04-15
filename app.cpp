@@ -8,7 +8,7 @@
 #include "src/AGENTS/agent.h"
 
 const int width = 800;
-const int height = 200;
+const int height = 300;
 
 int main(int argc, char **argv)
 {

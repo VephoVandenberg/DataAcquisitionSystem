@@ -118,3 +118,25 @@ void Agent::setAnalysisFlags(QString masksStr,
     m_checkHiddenDirs = hiddenDirs;
     m_checkHiddenFiles = hiddenFiles;
 }
+
+void Agent::parserErrorOccured(QProcess::ProcessError err)
+{
+    switch(err)
+    {
+    case QProcess::Crashed:
+    {
+	emit pfinished("error: parser has been stopped!");
+    }break;
+
+    case QProcess::FailedToStart:
+    {
+	emit pfinished("error: parser can't be started!");
+    }break;
+
+    case QProcess::UnknownError:
+    {
+	emit pfinished("error: Unknown");
+    }break;
+    }
+}
+

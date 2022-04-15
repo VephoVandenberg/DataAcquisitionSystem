@@ -34,6 +34,10 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
     m_grid.addWidget(&m_progress, 5, 0, 1, 4);
     m_grid.addWidget(&m_list, 4, 0, 1, 4);
 
+    m_label1.setBuddy(&m_lDir);
+    m_label2.setBuddy(&m_lMask);
+    m_label3.setBuddy(&m_lFName);
+
     this->setLayout(&m_grid);
     m_start.setFocus();
 
@@ -44,12 +48,15 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
     connect(&m_lDir, SIGNAL(textEdited()), SLOT(dirChanged()()));
     connect(&m_watcher, SIGNAL(dirChanged(QString)), SLOT(outputChkBoxClicked()()));
     connect(&m_needOutput, SIGNAL(clicked(bool)), SLOT(outputChkBoxClicked()));
+    connect(m_agent, SIGNAL(pfinished(QString)), SLOT(dataCollectionFinished(QString)));
 
     // Text coloring
     m_editText.setColor(QPalette::Text, Qt::green);
     m_lDir.setPalette(m_editText);
     m_lMask.setPalette(m_editText);
     m_lFName.setPalette(m_editText);
+
+
 }
 
 HDDWidget::~HDDWidget()

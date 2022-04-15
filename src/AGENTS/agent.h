@@ -18,14 +18,15 @@ public:
     void setFName(QString fName);
     void setRootDirectory(QDir dir);
     void setOutputFlags(bool needOut);
-    void parserFinished(int exitCode, QProcess::ExitStatus status);
     void setAnalysisFlags(QString masksStr = "",
 			  bool hiddenDirs = true,
 			  bool hiddenFiles = true);
 	    
 public slots:
     void parserSendData();
-
+    void parserFinished(int exitCode, QProcess::ExitStatus status);
+    void parserErrorOccured(QProcess::ProcessError err);
+    
 signals:
     void pfinished(QString status);
     
