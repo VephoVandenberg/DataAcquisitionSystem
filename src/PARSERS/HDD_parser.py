@@ -90,13 +90,48 @@ class HDDParserHandler:
         return parse_file(name)
 
     def parse_file_list(self, name):
-        # Write that later
-        pass
+        print(u"Analysis started")
+        with open(name, "r") as flist:
+            for fstring in flist:
+                try:
+                    attributes = []
+                    fstring = (fstring[:-1])
+                    normalized = fstring.replace("\\", "/")
+
+                    # General meta
+                    attributes += [normalized]
+                    buff = normalized.split("/")[-1]
+                    if '.' in buff:
+                        attributes += [buff.split('.')[-1]]
+                    else:
+                        attributes += [""]
+
+                    fstring = fstring.decode("utf-8")
+                    normalized = fstring
+
+                    attributes += self.get_common_meta(fstring)
+
+                    #Access rules and hachoir
+                    attributes += self.get_file_permitions(fstring)
+                    attributes += self.get_hachoir_data(fstring)
+
+                    self.fileCounter += 1
+                    print_msg("Processed '" + normalized_fstring + "'" )
+                    print(self.fileCounter)
+                    self.data.append(attributes)
+                except:
+                    print_msg("Uknown error!")
+                    self.errCounter += 1
+                    continue
     
         
-def main_parse(flist, fname):
+def main_parse(flist, resName):
     print(u"HDD initialization mode")
-
+    HDDParser = HDDParserHandler()
+    HDDParser.parse_file_list(flist)
+    HDDparser.print_errors()
+    os.remove(flist_name)
+    print("HDD parser work has been finished")
 
 if __name__ == "__main__":
     if len(sys.argv) == 3 or len(sys.argv) == 4:
