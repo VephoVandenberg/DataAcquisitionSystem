@@ -1,3 +1,4 @@
+
 #include "agent.h"
 
 Agent::Agent(QTextEdit *out, QProgressBar *bar, QWidget *parent) :
@@ -5,7 +6,7 @@ Agent::Agent(QTextEdit *out, QProgressBar *bar, QWidget *parent) :
 {
     m_analyzerProcess = new QProcess(this);
     connect(m_analyzerProcess, SIGNAL(readyReadStandardOutput()), SLOT(parserSendData()));
-    connect(m_analyzerProcess, SIGNAL(errorOccured(QProcess::ProcessError)), SLOT(parserErrorOccured(QProcess::ProcessError)));
+    connect(m_analyzerProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(parserErrorOccured(QProcess::ProcessError)));
 }
 
 Agent::~Agent()
@@ -31,6 +32,7 @@ void Agent::start()
 
     m_output->append("List of files has been recieved, files to process:" + QString::number(len));
     m_resultFName = "Analysis_results//hdd//" + m_resultFName;
+    m_analyzerProcess->start("python3 ../PARSERS/HDD_parser.py" + m_resultFName +  " " );
     
 }
 

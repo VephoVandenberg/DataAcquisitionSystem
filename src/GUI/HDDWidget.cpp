@@ -45,8 +45,8 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
 
     connect(&m_confirmDir, SIGNAL(clicked()), SLOT(choseDirBtnClicked()));
     connect(&m_start, SIGNAL(clicked()), SLOT(startBtnClicked()));
-    connect(&m_lDir, SIGNAL(textEdited()), SLOT(dirChanged()()));
-    connect(&m_watcher, SIGNAL(dirChanged(QString)), SLOT(outputChkBoxClicked()()));
+    connect(&m_lDir, SIGNAL(textEdited(QString)), SLOT(dirChanged()));
+    connect(&m_watcher, SIGNAL(directoryChanged(QString)), SLOT(dirChanged()));
     connect(&m_needOutput, SIGNAL(clicked(bool)), SLOT(outputChkBoxClicked()));
     connect(m_agent, SIGNAL(pfinished(QString)), SLOT(dataCollectionFinished(QString)));
 

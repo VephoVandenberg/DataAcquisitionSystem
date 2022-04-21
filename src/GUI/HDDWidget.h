@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include <QPushButton>
 #include <QGridLayout>
+#include <QLineEdit>
 
 #include "../AGENTS/agent.h"
 
