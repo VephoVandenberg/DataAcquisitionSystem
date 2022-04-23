@@ -1,10 +1,11 @@
-
-
 #include "agent.h"
+#include <iostream>
 
 Agent::Agent(QTextEdit *out, QProgressBar *bar, QWidget *parent) :
-    QWidget(parent), m_counter(0), m_output(out), m_progress(bar)
+    QWidget(parent), m_counter(0)
 {
+    m_output = out;
+    m_progress = bar;
     m_analyzerProcess = new QProcess(this);
     connect(m_analyzerProcess, SIGNAL(readyReadStandardOutput()), SLOT(parserSendData()));
     connect(m_analyzerProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(parserErrorOccured(QProcess::ProcessError)));
@@ -19,9 +20,11 @@ void Agent::start()
 {
     QFile file("build/flist");
     file.open(QFile::WriteOnly);
+    
     QStringList list;
     m_output->append("Counting files");
     countAndGetFiles(m_root, list);
+    
     int len = list.count();
     m_progress->setRange(0, len);
 
@@ -33,7 +36,9 @@ void Agent::start()
 
     m_output->append("List of files has been recieved, files to process:" + QString::number(len));
     m_resultFName = "build/analysisResults/HDD/" + m_resultFName;
-    m_analyzerProcess->start("python3 ../PARSERS/HDD_parser.py build/flist " + m_resultFName);
+    std::cout << m_resultFName.toStdString() << std::endl;
+    std::cout << QDir::currentPath().toStdString() << std::endl;
+    m_analyzerProcess->start("python3 -c src/PARSERS/HDD_parser.py build/flist " + m_resultFName + (m_outputFlag ? " -o" : ""));
     
 }
 

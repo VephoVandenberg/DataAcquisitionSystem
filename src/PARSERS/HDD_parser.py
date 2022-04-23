@@ -106,7 +106,7 @@ class HDDParserHandler:
                     else:
                         attributes += [""]
 
-                    fstring = fstring.decode("utf-8")
+                    fstring = fstring.decode("Utf-8")
                     normalized = fstring
 
                     attributes += self.get_common_meta(fstring)
