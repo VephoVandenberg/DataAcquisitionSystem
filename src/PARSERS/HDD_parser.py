@@ -52,20 +52,20 @@ class HDDParserHandler:
         self.data.append(["tab1" + str(time.time())])
 
     def print_errors(self):
-        print("Number of errors: " + sstr(self.errCounter).encode("utf-8"))
+        print(u"Number of errors: {}".format(self.errCounter).encode("utf-8"))
 
     def write_to_csv(self, name):
         print(u"File generation has started")
-        with open(fname, "wb") as csvfile:
+        with open(name, "w") as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=';', quotechar='"')
             csvwriter.writerows(self.data)
         print(u"File has been generated! ")
 
-    def get_common_meta(self, fileName):
+    def get_common_meta(self, name):
         try:
-            data = os.stat(fileName)
+            data = os.stat(name)
         except:
-            print_msg("Nofile (or encoding problem): " + fileName)
+            print_msg("Nofile (or encoding problem): " + name)
             self.errCounter += 1
             return ["NoFileError"]
         common_meta = []
@@ -129,8 +129,9 @@ def main_parse(flist, resName):
     print(u"HDD initialization mode")
     HDDParser = HDDParserHandler()
     HDDParser.parse_file_list(flist)
-    HDDparser.print_errors()
-    os.remove(flist_name)
+    HDDParser.write_to_csv(resName)
+    HDDParser.print_errors()
+    os.remove(flist)
     print("HDD parser work has been finished")
 
 if __name__ == "__main__":

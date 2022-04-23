@@ -1,4 +1,5 @@
 
+
 #include "agent.h"
 
 Agent::Agent(QTextEdit *out, QProgressBar *bar, QWidget *parent) :
@@ -16,7 +17,7 @@ Agent::~Agent()
 
 void Agent::start()
 {
-    QFile file(QDir::currentPath() + "//flist");
+    QFile file("build/flist");
     file.open(QFile::WriteOnly);
     QStringList list;
     m_output->append("Counting files");
@@ -31,8 +32,8 @@ void Agent::start()
     file.close();
 
     m_output->append("List of files has been recieved, files to process:" + QString::number(len));
-    m_resultFName = "Analysis_results//hdd//" + m_resultFName;
-    m_analyzerProcess->start("python3 ../PARSERS/HDD_parser.py" + m_resultFName +  " " );
+    m_resultFName = "build/analysisResults/HDD/" + m_resultFName;
+    m_analyzerProcess->start("python3 ../PARSERS/HDD_parser.py build/flist " + m_resultFName);
     
 }
 
