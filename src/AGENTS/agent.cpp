@@ -38,7 +38,8 @@ void Agent::start()
     m_resultFName = "build/analysisResults/HDD/" + m_resultFName;
     std::cout << m_resultFName.toStdString() << std::endl;
     std::cout << QDir::currentPath().toStdString() << std::endl;
-    m_analyzerProcess->start("python3 -c src/PARSERS/HDD_parser.py build/flist " + m_resultFName + (m_outputFlag ? " -o" : ""));
+    std::cout << m_outputFlag << std::endl;
+    m_analyzerProcess->start("python3 src/PARSERS/HDD_parser.py build/flist " + m_resultFName + " " + (m_outputFlag ? " -o" : ""));
     
 }
 

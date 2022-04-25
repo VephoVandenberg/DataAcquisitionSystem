@@ -4,19 +4,14 @@ import time
 import stat
 import csv
 
-import hachoir
+from hachoir.parser.guess import createParser, guessParser
+from hachoir.metadata.metadata import extractMetadata
 
 def print_msg(err_string):
-    if len(sys.argv) == 4:
-        print(err_string)
-
-def make_unicode(string):
-    if not isinstance(string, unicode):
-        string = string.decode("utf-8")
-    return string
+    print(err_string)
 
 def parse_file(file_name_arg):
-    f_name = make_unicode(file_name_arg)
+    f_name = file_name_arg
     try:
         parser = createParser(f_name)
     except err:
@@ -36,7 +31,7 @@ def extract_metadata(parser):
             return ["None"]
 
         if metadata is None:
-            pritn(u"Unable to extract metadata")
+            print(u"Unable to extract metadata")
             return ["None"]
 
         return str(metadata).split('\n- ')[1:]
@@ -81,9 +76,11 @@ class HDDParserHandler:
         except:
             self.errCounter += 1
             return
-        for (level, perm) in zip(permitions.keys(), pWeight.keys):
-            if mode & getattr(stat, "S_I" + perm + level):
-                permitions[level] += pWeight[perm]
+
+        for level in list(permitions.keys()):
+            for weight in list(pWeight.keys()):
+                if mode & getattr(stat, "S_I" + weight + level):
+                    permitions[level] += pWeight[weight]
         return [100 * permitions["USR"] + 10 * permitions["GRP"] + permitions["OTH"]]
 
     def get_hachoir_data(self, name):
@@ -92,38 +89,36 @@ class HDDParserHandler:
     def parse_file_list(self, name):
         print(u"Analysis started")
         with open(name, "r") as flist:
-            for fstring in flist:
-                try:
-                    attributes = []
-                    fstring = (fstring[:-1])
-                    normalized = fstring.replace("\\", "/")
-
-                    # General meta
-                    attributes += [normalized]
-                    buff = normalized.split("/")[-1]
-                    if '.' in buff:
-                        attributes += [buff.split('.')[-1]]
-                    else:
-                        attributes += [""]
-
-                    fstring = fstring.decode("Utf-8")
-                    normalized = fstring
-
-                    attributes += self.get_common_meta(fstring)
-
-                    #Access rules and hachoir
-                    attributes += self.get_file_permitions(fstring)
-                    attributes += self.get_hachoir_data(fstring)
-
-                    self.fileCounter += 1
-                    print_msg("Processed '" + normalized_fstring + "'" )
-                    print(self.fileCounter)
-                    self.data.append(attributes)
-                except:
-                    print_msg("Uknown error!")
-                    self.errCounter += 1
+            for fstring in flist.readlines():
+                if fstring == "":
                     continue
-    
+                
+                attributes = []
+                fstring = fstring[:-1]                    
+                normalized = fstring.replace("\\", "/")
+                
+                
+                # General meta
+                attributes += [normalized]
+                buff = normalized.split("/")[-1]
+                
+                if '.' in buff:
+                    attributes += [buff.split('.')[-1]]
+                else:
+                    attributes += [""]
+                        
+                normalized = fstring
+                attributes += self.get_common_meta(fstring)
+            
+                #Access rules and hachoir
+                    
+                attributes += self.get_file_permitions(fstring)
+                attributes += self.get_hachoir_data(fstring)
+                    
+                self.fileCounter += 1
+                print_msg("Processed '" + normalized + "'" )
+                print(self.fileCounter)
+                self.data.append(attributes)
         
 def main_parse(flist, resName):
     print(u"HDD initialization mode")
@@ -131,7 +126,6 @@ def main_parse(flist, resName):
     HDDParser.parse_file_list(flist)
     HDDParser.write_to_csv(resName)
     HDDParser.print_errors()
-    os.remove(flist)
     print("HDD parser work has been finished")
 
 if __name__ == "__main__":
