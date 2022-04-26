@@ -6,16 +6,19 @@ import csv
 
 from hachoir.parser.guess import createParser, guessParser
 from hachoir.metadata.metadata import extractMetadata
+from hachoir.stream import InputStreamError
 
 def print_msg(err_string):
-    print(err_string)
+    if len(err_string) > 0:
+        print(err_string)
 
 def parse_file(file_name_arg):
-    f_name = file_name_arg
+    name = file_name_arg
     try:
-        parser = createParser(f_name)
-    except err:
-        print_msg("stream error" + unicode(err)  + "\n")
+        parser = createParser(name)
+    except InputStreamError as err:
+        arg = "stream error", err, "\n"
+        print_msg(arg)
         return ["No_file"]
     return extract_metadata(parser)
 
@@ -25,7 +28,7 @@ def extract_metadata(parser):
     else:
         try:
             metadata = extractMetadata(parser)
-        except err:
+        except HachoirError as err:
             if len(sys.argv) == 4:
                 print_msg("stream error" + unicode(err))
             return ["None"]
@@ -90,35 +93,37 @@ class HDDParserHandler:
         print(u"Analysis started")
         with open(name, "r") as flist:
             for fstring in flist.readlines():
-                if fstring == "":
-                    continue
-                
-                attributes = []
-                fstring = fstring[:-1]                    
-                normalized = fstring.replace("\\", "/")
-                
-                
-                # General meta
-                attributes += [normalized]
-                buff = normalized.split("/")[-1]
-                
-                if '.' in buff:
-                    attributes += [buff.split('.')[-1]]
-                else:
-                    attributes += [""]
+                try:
+                    attributes = []
+                    fstring = fstring[:-1]                    
+                    normalized = fstring.replace("\\", "/")
+                    
+                    
+                    # General meta
+                    attributes += [normalized]
+                    buff = normalized.split("/")[-1]
+                    
+                    if '.' in buff:
+                        attributes += [buff.split('.')[-1]]
+                    else:
+                        attributes += [""]
                         
-                normalized = fstring
-                attributes += self.get_common_meta(fstring)
-            
-                #Access rules and hachoir
+                    normalized = fstring
+                    attributes += self.get_common_meta(fstring)
+                
+                    #Access rules and hachoir
                     
-                attributes += self.get_file_permitions(fstring)
-                attributes += self.get_hachoir_data(fstring)
-                    
-                self.fileCounter += 1
-                print_msg("Processed '" + normalized + "'" )
-                print(self.fileCounter)
-                self.data.append(attributes)
+                    attributes += self.get_file_permitions(fstring)
+                    attributes += self.get_hachoir_data(fstring)
+                
+                    self.fileCounter += 1
+                    arg = "Processed '",  normalized, "'"
+                    print_msg(arg)
+                    self.data.append(attributes)
+                except:
+                    print_msg("#Uknown error!")
+                    self.errCounter += 1
+                    continue
         
 def main_parse(flist, resName):
     print(u"HDD initialization mode")
