@@ -7,7 +7,7 @@ Agent::Agent(QTextEdit *out, QProgressBar *bar, QWidget *parent) :
     m_output = out;
     m_progress = bar;
     m_analyzerProcess = new QProcess(this);
-    connect(m_analyzerProcess, SIGNAL(readyReadStandardOutput()), SLOT(parserSendData()));
+    connect(m_analyzerProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(parserSendData()));
     connect(m_analyzerProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(parserErrorOccured(QProcess::ProcessError)));
 }
 
@@ -39,8 +39,10 @@ void Agent::start()
     std::cout << m_resultFName.toStdString() << std::endl;
     std::cout << QDir::currentPath().toStdString() << std::endl;
     std::cout << m_outputFlag << std::endl;
-    m_analyzerProcess->start("python3 src/PARSERS/HDD_parser.py build/flist " + m_resultFName + " " + (m_outputFlag ? " -o" : ""));
-    
+
+    m_analyzerProcess->start("\"ls\"");
+
+    if (m_analyzerProcess->waitForStarted()) std::cout << "Did no start"; 
 }
 
 void Agent::parserSendData()
