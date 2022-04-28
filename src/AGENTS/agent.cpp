@@ -7,7 +7,7 @@ Agent::Agent(QTextEdit *out, QProgressBar *bar, QWidget *parent) :
     m_output = out;
     m_progress = bar;
     m_analyzerProcess = new QProcess(this);
-    connect(m_analyzerProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(parserSendData()));
+    connect(m_analyzerProcess, SIGNAL(readyReadStandardOutput()),  SLOT(parserSendData()));
     connect(m_analyzerProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(parserErrorOccured(QProcess::ProcessError)));
 }
 
@@ -36,21 +36,17 @@ void Agent::start()
 
     m_output->append("List of files has been recieved, files to process:" + QString::number(len));
     m_resultFName = "build/analysisResults/HDD/" + m_resultFName;
-    std::cout << m_resultFName.toStdString() << std::endl;
-    std::cout << QDir::currentPath().toStdString() << std::endl;
-    std::cout << m_outputFlag << std::endl;
 
-    m_analyzerProcess->start("\"ls\"");
-
-    if (m_analyzerProcess->waitForStarted()) std::cout << "Did no start"; 
+    m_analyzerProcess->start("python3 src/PARSERS/HDD_parser.py build/flist " + m_resultFName + " -o");
+     
 }
 
 void Agent::parserSendData()
 {
     QString result = QString::fromLocal8Bit(m_analyzerProcess->readAll());
-
     foreach(QString str, result.split('\n'))
     {
+	std::cout << str.toStdString() << std::endl;
 	if (str.startsWith("[warn]"))
 	{
 	    continue;
@@ -65,7 +61,7 @@ void Agent::parserSendData()
 	    m_progress->setValue(str.toInt());
 	}
 
-	if (str.startsWith("#Module work has been finished"))
+	if (str.startsWith("HDD parser work has been finished"))
 	{
 	    parserFinished(100, QProcess::NormalExit);
 	}

@@ -9,7 +9,7 @@ from hachoir.metadata.metadata import extractMetadata
 from hachoir.stream import InputStreamError
 
 def print_msg(err_string):
-    if len(err_string) > 0:
+    if len(sys.argv) == 4:
         print(err_string)
 
 def parse_file(file_name_arg):
@@ -17,7 +17,7 @@ def parse_file(file_name_arg):
     try:
         parser = createParser(name)
     except InputStreamError as err:
-        arg = "stream error", err, "\n"
+        arg = "#stream error " + str(err) + " \n"
         print_msg(arg)
         return ["No_file"]
     return extract_metadata(parser)
@@ -30,11 +30,11 @@ def extract_metadata(parser):
             metadata = extractMetadata(parser)
         except HachoirError as err:
             if len(sys.argv) == 4:
-                print_msg("stream error" + unicode(err))
+                print_msg("#stream error" + unicode(err) + " ")
             return ["None"]
 
         if metadata is None:
-            print(u"Unable to extract metadata")
+            print("Unable to extract metadata")
             return ["None"]
 
         return str(metadata).split('\n- ')[1:]
@@ -46,24 +46,24 @@ class HDDParserHandler:
     errCounter = 0
 
     def __init__(self):
-        print(u"Time stamp")
+        print("#Time stamp")
         self.data.append(["tab1" + str(time.time())])
 
     def print_errors(self):
-        print(u"Number of errors: {}".format(self.errCounter).encode("utf-8"))
+        print(u"#Number of errors: {}".format(self.errCounter).encode("utf-8"))
 
     def write_to_csv(self, name):
-        print(u"File generation has started")
+        print(u"#File generation has started")
         with open(name, "w") as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=';', quotechar='"')
             csvwriter.writerows(self.data)
-        print(u"File has been generated! ")
+        print(u"#File has been generated! ")
 
     def get_common_meta(self, name):
         try:
             data = os.stat(name)
         except:
-            print_msg("Nofile (or encoding problem): " + name)
+            print_msg("#Nofile (or encoding problem): " + name)
             self.errCounter += 1
             return ["NoFileError"]
         common_meta = []
@@ -90,14 +90,13 @@ class HDDParserHandler:
         return parse_file(name)
 
     def parse_file_list(self, name):
-        print(u"Analysis started")
+        print(u"#Analysis has been started")
         with open(name, "r") as flist:
             for fstring in flist.readlines():
                 try:
                     attributes = []
                     fstring = fstring[:-1]                    
                     normalized = fstring.replace("\\", "/")
-                    
                     
                     # General meta
                     attributes += [normalized]
@@ -117,8 +116,9 @@ class HDDParserHandler:
                     attributes += self.get_hachoir_data(fstring)
                 
                     self.fileCounter += 1
-                    arg = "Processed '",  normalized, "'"
+                    arg = "#Processed '" +  str(normalized) + "'"
                     print_msg(arg)
+                    print(self.fileCounter)
                     self.data.append(attributes)
                 except:
                     print_msg("#Uknown error!")
@@ -126,7 +126,8 @@ class HDDParserHandler:
                     continue
         
 def main_parse(flist, resName):
-    print(u"HDD initialization mode")
+    print("HDD initialization mode")
+    print(flist, " ", resName)
     HDDParser = HDDParserHandler()
     HDDParser.parse_file_list(flist)
     HDDParser.write_to_csv(resName)
