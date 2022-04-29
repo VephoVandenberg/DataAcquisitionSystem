@@ -54,12 +54,16 @@ OBJECTS_DIR   = build/
 
 SOURCES       = app.cpp \
 		src/GUI/HDDWidget.cpp \
+		src/GUI/RAMWidget.cpp \
 		src/AGENTS/agent.cpp moc_HDDWidget.cpp \
+		moc_RAMWidget.cpp \
 		moc_agent.cpp
 OBJECTS       = build/app.o \
 		build/HDDWidget.o \
+		build/RAMWidget.o \
 		build/agent.o \
 		build/moc_HDDWidget.o \
+		build/moc_RAMWidget.o \
 		build/moc_agent.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -140,6 +144,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		src/GUI/RAMWidget.h \
 		src/AGENTS/agent.h app.cpp \
 		src/GUI/HDDWidget.cpp \
+		src/GUI/RAMWidget.cpp \
 		src/AGENTS/agent.cpp
 QMAKE_TARGET  = UniversityProject
 DESTDIR       = build/
@@ -322,7 +327,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents src/GUI/HDDWidget.h src/GUI/RAMWidget.h src/AGENTS/agent.h $(DISTDIR)/
-	$(COPY_FILE) --parents app.cpp src/GUI/HDDWidget.cpp src/AGENTS/agent.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents app.cpp src/GUI/HDDWidget.cpp src/GUI/RAMWidget.cpp src/AGENTS/agent.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -354,13 +359,20 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -W -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_HDDWidget.cpp moc_agent.cpp
+compiler_moc_header_make_all: moc_HDDWidget.cpp moc_RAMWidget.cpp moc_agent.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_HDDWidget.cpp moc_agent.cpp
+	-$(DEL_FILE) moc_HDDWidget.cpp moc_RAMWidget.cpp moc_agent.cpp
 moc_HDDWidget.cpp: src/GUI/HDDWidget.h \
+		src/AGENTS/agent.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/vepho/Working/Projects/UniversityProject/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/vepho/Working/Projects/UniversityProject -I/home/vepho/Working/Projects/UniversityProject -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/GUI/HDDWidget.h -o moc_HDDWidget.cpp
+
+moc_RAMWidget.cpp: src/GUI/RAMWidget.h \
+		src/AGENTS/agent.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/vepho/Working/Projects/UniversityProject/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/vepho/Working/Projects/UniversityProject -I/home/vepho/Working/Projects/UniversityProject -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/GUI/RAMWidget.h -o moc_RAMWidget.cpp
 
 moc_agent.cpp: src/AGENTS/agent.h \
 		moc_predefs.h \
@@ -384,18 +396,25 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 ####### Compile
 
 build/app.o: app.cpp src/GUI/HDDWidget.h \
-		src/GUI/RAMWidget.h \
-		src/AGENTS/agent.h
+		src/AGENTS/agent.h \
+		src/GUI/RAMWidget.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/app.o app.cpp
 
-build/HDDWidget.o: src/GUI/HDDWidget.cpp src/GUI/HDDWidget.h
+build/HDDWidget.o: src/GUI/HDDWidget.cpp src/GUI/HDDWidget.h \
+		src/AGENTS/agent.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/HDDWidget.o src/GUI/HDDWidget.cpp
+
+build/RAMWidget.o: src/GUI/RAMWidget.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/RAMWidget.o src/GUI/RAMWidget.cpp
 
 build/agent.o: src/AGENTS/agent.cpp src/AGENTS/agent.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/agent.o src/AGENTS/agent.cpp
 
 build/moc_HDDWidget.o: moc_HDDWidget.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/moc_HDDWidget.o moc_HDDWidget.cpp
+
+build/moc_RAMWidget.o: moc_RAMWidget.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/moc_RAMWidget.o moc_RAMWidget.cpp
 
 build/moc_agent.o: moc_agent.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/moc_agent.o moc_agent.cpp

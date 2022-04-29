@@ -2,13 +2,12 @@
 #include <iostream>
 
 Agent::Agent(QTextEdit *out, QProgressBar *bar, QWidget *parent) :
-    QWidget(parent), m_counter(0)
+    QWidget(parent), m_counter(0), m_analyzerProcess(this)
 {
     m_output = out;
     m_progress = bar;
-    m_analyzerProcess = new QProcess(this);
-    connect(m_analyzerProcess, SIGNAL(readyReadStandardOutput()),  SLOT(parserSendData()));
-    connect(m_analyzerProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(parserErrorOccured(QProcess::ProcessError)));
+    connect(&m_analyzerProcess, SIGNAL(readyReadStandardOutput()),  SLOT(parserSendData()));
+    connect(&m_analyzerProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(parserErrorOccured(QProcess::ProcessError)));
 }
 
 Agent::~Agent()
@@ -37,13 +36,13 @@ void Agent::start()
     m_output->append("List of files has been recieved, files to process:" + QString::number(len));
     m_resultFName = "build/analysisResults/HDD/" + m_resultFName;
 
-    m_analyzerProcess->start("python3 src/PARSERS/HDD_parser.py build/flist " + m_resultFName + " -o");
+    m_analyzerProcess.start("python3 src/PARSERS/HDD_parser.py build/flist " + m_resultFName + " -o");
      
 }
 
 void Agent::parserSendData()
 {
-    QString result = QString::fromLocal8Bit(m_analyzerProcess->readAll());
+    QString result = QString::fromLocal8Bit(m_analyzerProcess.readAll());
     foreach(QString str, result.split('\n'))
     {
 	std::cout << str.toStdString() << std::endl;

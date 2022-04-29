@@ -35,7 +35,7 @@ private:
     
 private:
     QDir m_root;
-    QProcess *m_analyzerProcess;
+    QProcess m_analyzerProcess;
     QTextEdit *m_output;
     QProgressBar *m_progress;
 

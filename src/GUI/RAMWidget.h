@@ -4,14 +4,15 @@
 #include <QTimer>
 #include <QtWidgets>
 
-#include "../AGENTS/agent.h"
+#include <map>
+
 
 class RAMWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    RAMWidget(QString cur_fname, QWidget *parent);
+    RAMWidget(QString currentFName, QWidget *parent);
     ~RAMWidget();
     
     void compliteProgress( int fin );
@@ -31,9 +32,9 @@ public slots:
 private:
     int m_currentEdge;
     QString m_dumpDirectory, m_tempFiles;
-    QTimer m_timer;
+    QTimer *m_timer;
     QProcess m_dumper;
-    QMap<QString, QString> profiles;
+    std::map<QString, QString> profiles;
 
     QGridLayout m_grdLayout;
     QPushButton m_start;

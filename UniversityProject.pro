@@ -22,7 +22,7 @@ QT += core gui widgets
 # Input
 HEADERS += src/GUI/HDDWidget.h src/GUI/RAMWidget.h src/AGENTS/agent.h
 
-SOURCES += app.cpp src/GUI/HDDWidget.cpp src/AGENTS/agent.cpp
+SOURCES += app.cpp src/GUI/HDDWidget.cpp src/GUI/RAMWidget.cpp src/AGENTS/agent.cpp
 
 # Output
 DESTDIR = build
