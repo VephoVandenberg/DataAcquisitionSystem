@@ -23,9 +23,13 @@ int main(int argc, char **argv)
     HDDWidget *HDDTab = new HDDWidget("/home/", "*",
 				      "HDD_results",
 				      &tabs);
+    
+
+    RAMWidget *RAMTab = new RAMWidget("/home/", &tabs);
+    
     tabs.setFocus();
     tabs.addTab(HDDTab, "&HDD");
-
+    tabs.addTab(RAMTab, "&RAM");
     layout.addWidget(&tabs);
     
     appWindow->setLayout(&layout);
@@ -34,5 +38,7 @@ int main(int argc, char **argv)
 
     app.exec();
 
+    delete HDDTab;
+    
     return 0;
 }

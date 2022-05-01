@@ -4,7 +4,6 @@
 #include <QTimer>
 #include <QtWidgets>
 
-#include <map>
 
 
 class RAMWidget : public QWidget
@@ -34,7 +33,7 @@ private:
     QString m_dumpDirectory, m_tempFiles;
     QTimer *m_timer;
     QProcess m_dumper;
-    std::map<QString, QString> profiles;
+    QMap<QString, QString> m_profiles;
 
     QGridLayout m_grdLayout;
     QPushButton m_start;
