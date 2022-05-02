@@ -3,6 +3,7 @@
 #else
 #include <unistd.h>
 #endif
+#include <iostream>
 
 #include "RAMWidget.h"
 
@@ -61,7 +62,7 @@ void RAMWidget::compliteProgress(int end)
 
 QStringList RAMWidget::getProfiles()
 {
-    
+
     m_profiles.insert("", "");
     QFile f("build/profiles");
     
@@ -136,7 +137,8 @@ void RAMWidget::changedProfiles(QString profile)
 {
     if (!m_getOnlyDump.isChecked())
     {
-	m_start.setEnabled(!profile.isEmpty());	
+	m_start.setEnabled(!profile.isEmpty());
+	std::cout << !profile.isEmpty() << std::endl;
     }
 }
 
@@ -164,15 +166,26 @@ void RAMWidget::startBtnClicked()
 	dirHandler.mkdir(".");
     }
 
-    // Memorizing dumpint start
+    // Memorizing dumping4 start
     m_dumper.setWorkingDirectory("build/memory");
-    connect(&m_dumper, SIGNAL(finished(int, QProcess:ExitStatus)), SLOT(dumpComplited(int exCode, QProcess::ExitStatus)));
+    connect(&m_dumper, SIGNAL(finished(int, QProcess:ExitStatus)), SLOT(dumpComplited(int, QProcess::ExitStatus)));
     ////////////////////////////////////////////////
     // investigate what is written int the bat file
     #ifdef WIN32
     #else
     #endif
-    ////////////////////////////////////////////////
+
+    m_timer->setInterval(getLineAmount() * 15);
+    if (m_getOnlyDump.isChecked())
+    {
+	m_currentEdge = 100;
+    }
+    else
+    {
+	m_currentEdge = 34;
+    }
+    connect(m_timer, SIGNAL(timeout()), SLOT(moveProgress()));
+    m_timer->start();
 }
 
 void RAMWidget::dumpComplited(int exitCode, QProcess::ExitStatus exitStatus)
@@ -188,7 +201,37 @@ void RAMWidget::dumpComplited(int exitCode, QProcess::ExitStatus exitStatus)
     }
     else
     {
-	
+	compliteProgress(m_currentEdge);
+	m_timer->setInterval(getLineAmount() * 10);
+	disconnect(&m_dumper, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(dumpComplited(int, QProcess::ExitStatus)));
+	connect(&m_dumper, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(parserFinished(int, QProcess::ExitStatus)));
+	connect(&m_dumper, SIGNAL(readyRead()), SLOT(parserSendData()));
+
+	// Getting dump's path 
+
+	QStringList list;
+	while(1)
+	{
+	    QDir dirHandler(m_dumpDirectory);
+	    list = dirHandler.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+	    if(list.isEmpty())
+	    {
+		break;
+	    }
+	    m_dumpDirectory += "/" + list[0];
+	}
+	QDir dirHandler(m_dumpDirectory);
+	QString dumpFName = dirHandler.entryList(QStringList("*.img"), QDir::Files)[0];
+
+	m_output.append("Memorize successfully finished its job. Analysis of temporary files has been started");
+	QString params;
+	params = " \"../" + m_dumpDirectory + "/" + dumpFName + "\"";
+	params += " \"" + m_profiles[m_profileComboBox.currentText()].trimmed() + "\"";
+	params += " \"../" + (m_tempFiles = "Analysis_results/ram/" + m_lFName.text().remove(".csv")) +  "/\"";
+	params += " \"" + m_lFName.text() + "\"";
+
+	std::cout << m_profiles[m_profileComboBox.currentText()].trimmed().toStdString() << std::endl;
+	// m_dumper.start("cmd /C ..\\py\\py.exe MemParser.py" + parameters);
     }
 }
 
@@ -210,16 +253,39 @@ void RAMWidget::dumpChkClicked()
     if (m_getOnlyDump.isChecked())
     {
 	m_start.setEnabled(false);
+	std::cout << "Here" << std::endl;
     }
     else
     {
 	changedProfiles(m_profileComboBox.currentText());
+	std::cout << "Now here" << std::endl;
     }
 }
 
 void RAMWidget::parserFinished(int exCode, QProcess::ExitStatus exStatus)
 {
+    m_output.append("Deletion of temporary files in " + m_tempFiles + "...");
+    cleanUp(m_tempFiles);
+    m_output.append("Parser successfully finished its job!");
+    QApplication::alert(this);
+    // Some job with sende should be performed
     
+    QMessageBox::information(this,"RAM_Parser","Analysis has been finished " +
+                             (exStatus == QProcess::NormalExit? "with success!" : ("with error:" + m_dumper.errorString())));
+    disconnect(&m_dumper, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(parserFinished(int, QProcess::ExitStatus)));
+    disconnect(&m_dumper, SIGNAL(readyRead()), this, SLOT(parserSendData()));
+
+    m_lFName.setText(QDateTime::currentDateTime().toString("HH.mm.ss_dd.MM.yyyy") + ".csv"),
+    m_progress.setValue(0);
+    m_timer->stop();
+    m_start.setEnabled(true);
+    m_getOnlyDump.setEnabled(true);
+    m_saveRawDump.setEnabled(true);
+    m_saveTempFiles.setEnabled(true);
+    m_profileComboBox.setEnabled(true);
+    m_lFName.setEnabled(true);
+
+    std::cout << "Clicked" << std::endl;
 }
 
 void RAMWidget::parserSendData()
@@ -240,4 +306,15 @@ void RAMWidget::parserSendData()
 	    m_output.repaint();
 	}
     }
+}
+
+int RAMWidget::getLineAmount()
+{
+    int lA = 4 * 60;
+    if (m_getOnlyDump.isChecked())
+    {
+	return lA;
+    }
+    lA += 10 * (5 * 60);
+    return lA + 5 * 60;
 }
