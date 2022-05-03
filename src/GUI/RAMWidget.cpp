@@ -37,9 +37,11 @@ RAMWidget::RAMWidget(QString currentFName, QWidget *parent) :
 
     m_lFName.setText(currentFName);
 
-    connect(&m_start, SIGNAL(clicked(bool)), SLOT(dumpChkClicked));
+    connect(&m_start, SIGNAL(clicked(bool)), SLOT(startBtnClicked()));
     connect(&m_profileComboBox, SIGNAL(currentTextChanged(QString)), SLOT(changedProfiles(QString)));
     connect(&m_getOnlyDump, SIGNAL(clicked(bool)), SLOT(dumpChkClicked()));
+    connect(&m_dumper, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(dumperProcessError(QProcess::ProcessError)));
+    connect(&m_dumper, SIGNAL(readyReadStandardOutput()), SLOT(parserErrorOccured(QProcess::ProcessError)));
 }
 
 RAMWidget::~RAMWidget()
@@ -167,13 +169,10 @@ void RAMWidget::startBtnClicked()
     }
 
     // Memorizing dumping4 start
-    m_dumper.setWorkingDirectory("build/memory");
-    connect(&m_dumper, SIGNAL(finished(int, QProcess:ExitStatus)), SLOT(dumpComplited(int, QProcess::ExitStatus)));
+    // connect(&m_dumper, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(dumpComplited(int, QProcess::ExitStatus)));
     ////////////////////////////////////////////////
-    // investigate what is written int the bat file
-    #ifdef WIN32
-    #else
-    #endif
+    m_dumper.start("sh build/memory/getMemoryDump.sh");
+    m_dumper.waitForFinished();
 
     m_timer->setInterval(getLineAmount() * 15);
     if (m_getOnlyDump.isChecked())
@@ -185,7 +184,7 @@ void RAMWidget::startBtnClicked()
 	m_currentEdge = 34;
     }
     connect(m_timer, SIGNAL(timeout()), SLOT(moveProgress()));
-    m_timer->start();
+    // m_timer->start();
 }
 
 void RAMWidget::dumpComplited(int exitCode, QProcess::ExitStatus exitStatus)
@@ -210,25 +209,16 @@ void RAMWidget::dumpComplited(int exitCode, QProcess::ExitStatus exitStatus)
 	// Getting dump's path 
 
 	QStringList list;
-	while(1)
-	{
-	    QDir dirHandler(m_dumpDirectory);
-	    list = dirHandler.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-	    if(list.isEmpty())
-	    {
-		break;
-	    }
-	    m_dumpDirectory += "/" + list[0];
-	}
+        
 	QDir dirHandler(m_dumpDirectory);
 	QString dumpFName = dirHandler.entryList(QStringList("*.img"), QDir::Files)[0];
 
 	m_output.append("Memorize successfully finished its job. Analysis of temporary files has been started");
 	QString params;
-	params = " \"../" + m_dumpDirectory + "/" + dumpFName + "\"";
-	params += " \"" + m_profiles[m_profileComboBox.currentText()].trimmed() + "\"";
-	params += " \"../" + (m_tempFiles = "Analysis_results/ram/" + m_lFName.text().remove(".csv")) +  "/\"";
-	params += " \"" + m_lFName.text() + "\"";
+	params = "\"../" + m_dumpDirectory + "/" + dumpFName + "\"";
+	params += "\"" + m_profiles[m_profileComboBox.currentText()].trimmed() + "\"";
+	params += "\"../" + (m_tempFiles = "Analysis_results/ram/" + m_lFName.text().remove(".csv")) +  "/\"";
+	params += "\"" + m_lFName.text() + "\"";
 
 	std::cout << m_profiles[m_profileComboBox.currentText()].trimmed().toStdString() << std::endl;
 	// m_dumper.start("cmd /C ..\\py\\py.exe MemParser.py" + parameters);
@@ -317,4 +307,25 @@ int RAMWidget::getLineAmount()
     }
     lA += 10 * (5 * 60);
     return lA + 5 * 60;
+}
+
+void RAMWidget::dumperProcessError(QProcess::ProcessError error)
+{
+    switch(error)
+    {
+    case QProcess::Crashed:
+    {
+	QMessageBox::information(this, "Error",  "Crashed");
+    }break;
+
+    case QProcess::FailedToStart:
+    {
+	QMessageBox::information(this, "Error",  "Failed to start");
+    }break;
+
+    case QProcess::UnknownError:
+    {
+	QMessageBox::information(this, "Error",  "Unknown Error");
+    }break;
+    }
 }

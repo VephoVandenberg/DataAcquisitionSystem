@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 				      &tabs);
     
 
-    RAMWidget *RAMTab = new RAMWidget("/home/", &tabs);
+    RAMWidget *RAMTab = new RAMWidget("RAM_result.csv", &tabs);
     
     tabs.setFocus();
     tabs.addTab(HDDTab, "&HDD");

@@ -33,6 +33,7 @@ void Agent::start()
     }
     file.close();
 
+    
     m_output->append("List of files has been recieved, files to process:" + QString::number(len));
     m_resultFName = "build/analysisResults/HDD/" + m_resultFName;
 

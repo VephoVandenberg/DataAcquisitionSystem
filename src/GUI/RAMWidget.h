@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <QTimer>
 #include <QtWidgets>
-
+#include <QProcess>
 
 
 class RAMWidget : public QWidget
@@ -26,6 +26,7 @@ public slots:
     void dumpChkClicked();
     void parserFinished(int exCode, QProcess::ExitStatus exStatus);
     void parserSendData();
+    void dumperProcessError(QProcess::ProcessError error);
 
 
 private:
