@@ -1,6 +1,8 @@
 #!/bin/sh
 cd /opt/LiME/src && make
 
-VARIABLE_TO_ANALYZE=$(ls /opt/LiME/src | grep .ko)
+VARIABLE_TO_ANALYZE=$(basename lime-*.ko)
 
-insmod $VARIABLE_TO_ANALYZE "path=/home/vepho/Working/Projects/UniversityProject/build/memory format=raw"
+sudo insmod $VARIABLE_TO_ANALYZE "path=${1}memoryDump.memLinux format=lime"
+
+sudo rmmod lime

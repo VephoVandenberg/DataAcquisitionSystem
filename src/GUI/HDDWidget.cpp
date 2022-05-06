@@ -3,11 +3,11 @@
 HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent) :
     QWidget(parent), m_watcher(this),
     m_label1("Chose directory"), m_label2("Enter mask"), m_label3("Report name"),
-    m_confirmDir("Browse"), m_start("Start"),
+    m_confirmDir("Browse directory"), m_start("Start"),
     m_lDir(path), m_lMask(mask), m_lFName(frame),
     m_needHiddenDirs("Analyze files int hidden folders"),
     m_needHiddenFiles("Analyze hidden files"),
-    m_needOutput("Output")
+    m_needOutput("Full Output")
 {
     m_watcher.addPath(path);
     m_watcher.setObjectName("HDDWatcher");
@@ -29,10 +29,10 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
     m_grid.addWidget(&m_needOutput, 3, 0);
     m_grid.addWidget(&m_needHiddenDirs, 3, 1);
     m_grid.addWidget(&m_needHiddenFiles, 3, 2);
-    m_grid.addWidget(&m_confirmDir, 0, 3);
-    m_grid.addWidget(&m_start, 1, 3);
-    m_grid.addWidget(&m_progress, 5, 0, 1, 4);
-    m_grid.addWidget(&m_list, 4, 0, 1, 4);
+    m_grid.addWidget(&m_confirmDir, 4, 0);
+    m_grid.addWidget(&m_start, 4, 2);
+    m_grid.addWidget(&m_progress, 5, 0, 1, 3);
+    m_grid.addWidget(&m_list, 0, 4, 6, 3);
 
     m_label1.setBuddy(&m_lDir);
     m_label2.setBuddy(&m_lMask);

@@ -7,8 +7,8 @@
 #include "src/GUI/RAMWidget.h"
 #include "src/AGENTS/agent.h"
 
-const int width = 800;
-const int height = 300;
+const int width = 1000;
+const int height = 400;
 
 int main(int argc, char **argv)
 {
@@ -39,6 +39,7 @@ int main(int argc, char **argv)
     app.exec();
 
     delete HDDTab;
+    delete RAMTab;
     
     return 0;
 }
