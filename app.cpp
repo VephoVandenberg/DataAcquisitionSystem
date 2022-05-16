@@ -21,11 +21,11 @@ int main(int argc, char **argv)
     QTabWidget tabs;
     
     HDDWidget *HDDTab = new HDDWidget("/home/", "*",
-				      "HDD_results",
+				      "HDD_result",
 				      &tabs);
     
 
-    RAMWidget *RAMTab = new RAMWidget("RAM_result.csv", &tabs);
+    RAMWidget *RAMTab = new RAMWidget("RAM_result", &tabs);
     
     tabs.setFocus();
     tabs.addTab(HDDTab, "&HDD");
