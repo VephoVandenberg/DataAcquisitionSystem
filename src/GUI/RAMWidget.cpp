@@ -1,5 +1,3 @@
-
-
 #ifdef WIN32
 #include <unistd.h>
 #else
@@ -11,46 +9,51 @@
 
 RAMWidget::RAMWidget(QString currentFName, QWidget *parent) :
     QWidget(parent), m_label1("Result file"),m_label2("Choose memory dump"), m_label3("System profile"),
-    m_start("Start"), m_browse("Browse dump"), m_dumpFromCurrMachine("My computer dump"), m_saveRawDump("Save dump"), m_saveTempFiles("Save temporary files"), m_dumper(this)
+    m_start("Start"), m_browse("Browse dump"), m_dumpFromCurrMachine("My computer dump"), m_saveRawDump("Save dump"), m_saveTempFiles("Save temporary files"), m_psscan("Scan process objects"), m_pslist("All running processes"), m_sockscan("Scan sockets"),  m_dumper(this)
 {
     m_timer = new QTimer(this);
     
     m_progress.setValue(0);
     m_output.setReadOnly(true);
 
-   m_grid.setMargin(m_margin);
-   m_grid.setSpacing(m_spacing);
-   m_grid.addWidget(&m_label1, 0, 0);
-   m_grid.addWidget(&m_label2, 1, 0);
-   m_grid.addWidget(&m_label3, 2, 0);
-   m_grid.addWidget(&m_lFName, 0, 1, 1, 2);
-   m_grid.addWidget(&m_lDir, 1, 1, 1, 2);
-   m_grid.addWidget(&m_start, 4, 2, 1, 1);
-   m_grid.addWidget(&m_browse, 4, 0, 1, 1);
-   m_grid.addWidget(&m_profileComboBox, 2, 1, 1, 2);
-   m_grid.addWidget(&m_dumpFromCurrMachine, 3, 0);
-   m_grid.addWidget(&m_saveRawDump, 3, 1);
-   m_grid.addWidget(&m_saveTempFiles, 3, 2);
-   m_grid.addWidget(&m_output, 0, 3, 6, 3);
-   m_grid.addWidget(&m_progress, 5, 0, 1, 3);
-
-   m_saveRawDump.setEnabled(false);
-   m_start.setEnabled(false);
-   m_lDir.setReadOnly(true);
+    m_grid.setMargin(m_margin);
+    m_grid.setSpacing(m_spacing);
+    m_grid.addWidget(&m_label1, 0, 0);
+    m_grid.addWidget(&m_label2, 1, 0);
+    m_grid.addWidget(&m_label3, 2, 0);
+    m_grid.addWidget(&m_lFName, 0, 1, 1, 2);
+    m_grid.addWidget(&m_lDir, 1, 1, 1, 2);
+    m_grid.addWidget(&m_start, 5, 2, 1, 1);
+    m_grid.addWidget(&m_browse, 5, 0, 1, 1);
+    m_grid.addWidget(&m_profileComboBox, 2, 1, 1, 2);
+    m_grid.addWidget(&m_dumpFromCurrMachine, 3, 0);
+    m_grid.addWidget(&m_saveRawDump, 3, 1);
+    m_grid.addWidget(&m_saveTempFiles, 3, 2);
+    m_grid.addWidget(&m_psscan, 4, 0);
+    m_grid.addWidget(&m_pslist, 4, 1);
+    m_grid.addWidget(&m_sockscan, 4, 2);
+    m_grid.addWidget(&m_output, 0, 3, 7, 3);
+    m_grid.addWidget(&m_progress, 6, 0, 1, 3);
+    
+    m_saveRawDump.setEnabled(false);
+    m_start.setEnabled(false);
+    m_lDir.setReadOnly(true);
+    
+    this->setLayout(&m_grid);
+    
+    m_profileComboBox.addItems(getProfiles());
    
-   this->setLayout(&m_grid);
+    m_lFName.setText(currentFName);
+    
+    connect(&m_start, SIGNAL(clicked(bool)), SLOT(startBtnClicked()));
+    connect(&m_browse, SIGNAL(clicked()), SLOT(choseDirBtnClicked()));
+    
+    connect(&m_profileComboBox, SIGNAL(currentTextChanged(QString)), SLOT(changedProfiles(QString)));
+    connect(&m_dumpFromCurrMachine, SIGNAL(clicked(bool)), SLOT(dumpChkClicked()));
+    connect(&m_lDir, SIGNAL(textChanged(const QString)), SLOT(changedProfiles(QString)));
+    connect(&m_dumper, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(dumperProcessError(QProcess::ProcessError)));
+    connect(&m_dumper, SIGNAL(readyReadStandardOutput()), SLOT(parserSendData()));
 
-   m_profileComboBox.addItems(getProfiles());
-   
-   m_lFName.setText(currentFName);
-
-   connect(&m_start, SIGNAL(clicked(bool)), SLOT(startBtnClicked()));
-   connect(&m_browse, SIGNAL(clicked()), SLOT(choseDirBtnClicked()));
-   
-   connect(&m_profileComboBox, SIGNAL(currentTextChanged(QString)), SLOT(changedProfiles(QString)));
-   connect(&m_dumpFromCurrMachine, SIGNAL(clicked(bool)), SLOT(dumpChkClicked()));
-   connect(&m_lDir, SIGNAL(textChanged(const QString)), SLOT(changedProfiles(QString)));
-   connect(&m_dumper, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(dumperProcessError(QProcess::ProcessError)));
 }
 
 RAMWidget::~RAMWidget()
@@ -62,11 +65,6 @@ void RAMWidget::compliteProgress(int end)
 {
     for (int iterator = m_progress.value(); iterator <= end; iterator++)
     {
-	#ifdef WIN32
-	_sleep((unsigned)100);
-	#else
-	sleep((unsigned)100);
-	#endif
 	m_progress.setValue(iterator);
     }
 }
@@ -99,49 +97,20 @@ QStringList RAMWidget::getProfiles()
     
 }
 
-void RAMWidget::cleanUp(QString dir)
+void RAMWidget::cleanUp()
 {
-    
-    QDir dirHandler(dir);
-    QStringList list = dirHandler.entryList(QDir::Files);
-
-    // Delete files
-
-    foreach(QString fileName, list)
+    if (m_dumpFromCurrMachine.isChecked() && !m_saveRawDump.isChecked())
     {
-        if(m_saveRawDump.isChecked())
-	{
-	    if(fileName.endsWith(".img"))
-	    {
-		continue;
-	    }
-	}
-	
-        if(m_saveTempFiles.isChecked())
-	{
-	    if(fileName.endsWith(".tmp"))
-	    {
-		continue;
-	    }
-	}
-
-	
-        if(fileName.endsWith(".csv"))
-	{
-	    continue;
-	}
-        dirHandler.remove(fileName);
-        m_output.append("\tDeleted: " + dir + "/" + fileName);
+	m_dumper.start("sudo rm build/memory/*.mem");
     }
-
-    // To the depth
-
-    list = dirHandler.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach(QString newDirectory, list)
+    else
     {
-        cleanUp(dir + "/" + newDirectory);
-        dirHandler.rmdir(newDirectory);
+	if (!m_saveTempFiles.isChecked())
+	{
+	    m_dumper.start("sudo rm build/analysisResults/RAM/*temp.csv");
+	}
     }
+	
 }
 
 void RAMWidget::changedProfiles(QString profile)
@@ -149,7 +118,6 @@ void RAMWidget::changedProfiles(QString profile)
     if (!m_profileComboBox.currentText().isEmpty() &&
 	!m_lDir.displayText().isEmpty())
     {
-	std::cout << m_lDir.selectedText().isEmpty() << std::endl;
 	m_profileComboBox.setEnabled(true);
 	m_saveRawDump.setEnabled(false);
 	m_start.setEnabled(true);
@@ -157,12 +125,13 @@ void RAMWidget::changedProfiles(QString profile)
     else
     {
 	m_start.setEnabled(false);
-	std::cout << m_lDir.selectedText().toStdString() << std::endl;
     }
 }
 
 void RAMWidget::startBtnClicked()
 {
+    m_output.clear();
+    
     m_start.setEnabled(false);
     m_dumpFromCurrMachine.setEnabled(false);
     m_saveRawDump.setEnabled(false);
@@ -174,16 +143,12 @@ void RAMWidget::startBtnClicked()
     
     m_output.clear();
 
-    QString text = m_lFName.text().replace(' ', '_');
-    m_lFName.setText(text + (text.endsWith(".csv") ? "" : ".csv"));
-    m_dumpDirectory = QDir::currentPath() + "/build/analysisResults/RAM" + m_lFName.text().remove(".csv");
 
-    std::cout << m_dumpDirectory.toStdString() << std::endl;
-
+    QString resultFile = QDir::currentPath() + "/build/analysisResults/RAM/" + m_lFName.text() + QDateTime::currentDateTime().toString("hh.mm.ss_dd.MM.yyyy") + ".csv";
+    std::cout << resultFile.toStdString() << std::endl;
     if (m_dumpFromCurrMachine.isChecked())
     {
 	m_output.append("Dump collection has been started. Please wait, dump collection may take some time...");
-	m_output.repaint();
 
 	QStringList args;
 	QString dumpPath = QDir::currentPath() + "/build/memory/";
@@ -191,59 +156,109 @@ void RAMWidget::startBtnClicked()
 	args << dumpPath;
 	
 	m_dumper.start("sudo sh build/memory/getMemoryDump.sh " + dumpPath);
-	m_dumper.waitForFinished();
+	m_dumper.waitForStarted();
+	m_dumper.waitForFinished(180000);
 	m_output.append("Memory dump has been collected");
-    }
-    else
-    {
-	m_output.append("Volatility analysis has been started");
-    }
-}
-
-void RAMWidget::dumpComplited(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    if (exitStatus != QProcess::NormalExit)
-    {
-	m_output.append("Memorize has finished its task with eror (" + m_dumper.errorString() + "). Error code:" + exitCode);
-    }
-    else if (m_dumpFromCurrMachine.isChecked())
-    {
-	m_output.append("Memorize successfully finished its job. Dump is saved with adress:" + m_dumpDirectory);
-	m_timer->stop();
-    }
-    else
-    {
+	m_currentEdge = 35;
 	compliteProgress(m_currentEdge);
-	m_timer->setInterval(getLineAmount() * 10);
-	disconnect(&m_dumper, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(dumpComplited(int, QProcess::ExitStatus)));
-	connect(&m_dumper, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(parserFinished(int, QProcess::ExitStatus)));
-	connect(&m_dumper, SIGNAL(readyRead()), SLOT(parserSendData()));
 
-	// Getting dump's path 
+// Get your kernels profile
+	m_output.append("Determine profile");
+	m_dumper.start("sudo python /opt/volatility/vol.py --info");
+	m_dumper.waitForStarted(180000);
+	m_dumper.waitForFinished();
+	m_currentEdge = 50;
+	compliteProgress(m_currentEdge);
+// Now Voladility should be started
 
-	QStringList list;
-        
-	QDir dirHandler(m_dumpDirectory);
-	QString dumpFName = dirHandler.entryList(QStringList("*.mem"), QDir::Files)[0];
-
-	m_output.append("Memorize successfully finished its job. Analysis of temporary files has been started");
-
-	// m_dumper.start("cmd /C ..\\py\\py.exe MemParser.py" + parameters);
-    }
-}
-
-void RAMWidget::moveProgress()
-{
-    int value = m_progress.value();
-    if(value != m_currentEdge - 1)
-    {
-	if(value == m_currentEdge - 15 || value == m_currentEdge - 10)
+	QString plugin;
+	
+	if (m_pslist.isChecked())
 	{
-	    m_timer->setInterval(m_timer->interval() * 1.5 );
+	    plugin = "linux_pslist";
 	}
-	m_progress.setValue(value++);
+	else if (m_sockscan.isChecked())
+	{
+	    plugin = "linux_sockscan";
+	}
+	else
+	{
+	    plugin = "linux_psscan";
+	}
+
+	QString tempCSVFile = resultFile.remove(".csv") + "temp.csv";
+	QString dumpItself = dumpPath + "myMemory.mem";
+// Collectd data from csv file
+	QString command = "sudo python /opt/volatility/vol.py --file=" + dumpItself + " --profile=" + m_currentLinuxProfile + " --output-file=" + tempCSVFile + " " + plugin;
+	std::cout << command.toStdString() << std::endl;
+	m_dumper.start(command);
+	m_dumper.waitForStarted();
+	m_dumper.waitForFinished();
+
+	m_currentEdge = 69;
+	compliteProgress(m_currentEdge);
+
+// Parse csv file
+	command = "sudo python3 src/PARSERS/RAM_parser.py " + tempCSVFile + " " + resultFile + ".csv " + plugin;
+	std::cout << command.toStdString() << std::endl;
+	m_dumper.start(command);
+	m_dumper.waitForFinished();
+	m_currentEdge = 100;
+	compliteProgress(100);
     }
+    else
+    {
+	QString memoryDump = m_lDir.displayText();
+	std::cout << memoryDump.toStdString() << std::endl;
+
+	m_output.append("Volatility analysis has been started");
+	m_dumper.start("sudo python /opt/volatility/vol.py --file=" + memoryDump  + " imageinfo");
+	m_dumper.waitForFinished();
+	
+	m_currentEdge = 15;
+	compliteProgress(m_currentEdge);
+	
+	QString profile = m_profiles[m_profileComboBox.currentText()];
+	QString tempResultFile = resultFile;
+	QString tempCSVFile = tempResultFile.remove(".csv") + "temp.csv";
+	QString plugin;
+
+	if (m_pslist.isChecked())
+	{
+	    plugin = "pslist";
+	}
+	else if (m_sockscan.isChecked())
+	{
+	    plugin = "sockscan";
+	}
+	else
+	{
+	    plugin = "psscan";
+	}
+
+// Collectd data from csv file
+	QString command = "sudo python /opt/volatility/vol.py --file=" + memoryDump + " --profile=" + profile + " --output-file=" + tempCSVFile + " " + plugin;
+	m_dumper.start(command);
+	m_dumper.waitForStarted();
+	m_dumper.waitForFinished();
+
+	m_currentEdge = 69;
+	compliteProgress(m_currentEdge);
+
+// Parse csv file
+	command = "sudo python3 src/PARSERS/RAM_parser.py " + tempCSVFile + " " + resultFile + " " + plugin;
+	std::cout << command.toStdString() << std::endl;
+	m_dumper.start(command);
+	m_dumper.waitForFinished();
+	m_currentEdge = 100;
+	compliteProgress(100);
+
+    }
+
+    parserFinished();
 }
+
+
 
 void RAMWidget::dumpChkClicked()
 {
@@ -255,6 +270,7 @@ void RAMWidget::dumpChkClicked()
 	m_lDir.setEnabled(false);
 	m_start.setEnabled(true);
 	m_saveRawDump.setEnabled(true);
+	m_saveTempFiles.setEnabled(false);
     }
     else
     {
@@ -263,33 +279,25 @@ void RAMWidget::dumpChkClicked()
 	m_browse.setEnabled(true);
 	m_start.setEnabled(false);
 	m_saveRawDump.setEnabled(false);
+	m_saveTempFiles.setEnabled(true);
+
     }
 }
 
-void RAMWidget::parserFinished(int exCode, QProcess::ExitStatus exStatus)
+void RAMWidget::parserFinished()
 {
-    m_output.append("Deletion of temporary files in " + m_tempFiles + "...");
-    cleanUp(m_tempFiles);
+    cleanUp();
     m_output.append("Parser successfully finished its job!");
-    QApplication::alert(this);
-    // Some job with sende should be performed
-    
-    QMessageBox::information(this,"RAM_Parser","Analysis has been finished " +
-                             (exStatus == QProcess::NormalExit? "with success!" : ("with error:" + m_dumper.errorString())));
-    disconnect(&m_dumper, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(parserFinished(int, QProcess::ExitStatus)));
-    disconnect(&m_dumper, SIGNAL(readyRead()), this, SLOT(parserSendData()));
+  
 
-    m_lFName.setText(QDateTime::currentDateTime().toString("HH.mm.ss_dd.MM.yyyy") + ".csv"),
     m_progress.setValue(0);
-    m_timer->stop();
     m_start.setEnabled(true);
     m_dumpFromCurrMachine.setEnabled(true);
-    m_saveRawDump.setEnabled(true);
+    m_saveRawDump.setEnabled(false);
     m_saveTempFiles.setEnabled(true);
     m_profileComboBox.setEnabled(true);
     m_lFName.setEnabled(true);
 
-    std::cout << "Clicked" << std::endl;
 }
 
 void RAMWidget::parserSendData()
@@ -298,16 +306,28 @@ void RAMWidget::parserSendData()
 
     foreach (QString str, result.split('\n'))
     {
-	if (str.startsWith("#"))
+	std::cout << str.toStdString() << std::endl;
+        if (str.contains("Suggested Profile(s)"))
 	{
-	    m_output.append(str.mid(1, str.size() - 2));
-	    compliteProgress(m_currentEdge);
-	    m_currentEdge += 6;
-	}
-	else
-	{
+	    str.remove('\t');
 	    m_output.append(str);
-	    m_output.repaint();
+	    
+	    QString value = m_profiles[m_profileComboBox.currentText()].remove(' ');
+	    if (!str.contains(value))
+	    {
+		QMessageBox::information(this, "Error",  "In order to get a proper work of system choose on of the suggested profiles - " + str);
+		m_progress.setValue(0);
+
+		m_start.setEnabled(true);
+		m_profileComboBox.setEnabled(true);
+		m_dumpFromCurrMachine.setEnabled(true);
+	    }
+	}
+
+	if (str.contains("Current"))
+	{
+	    m_currentLinuxProfile = str.split(" - A Profile for Linux Current")[0];
+	    m_output.append("Profile for this System: " + m_currentLinuxProfile);
 	}
     }
 }
