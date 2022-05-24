@@ -1,11 +1,12 @@
+
 #include "HDDWidget.h"
 
 HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent) :
     QWidget(parent), m_watcher(this),
-    m_label1("Chose directory"), m_label2("Enter mask"), m_label3("Report name"),
+    m_label1("Choose directory"), m_label2("Enter mask"), m_label3("Report name"),
     m_confirmDir("Browse directory"), m_start("Start"),
     m_lDir(path), m_lMask(mask), m_lFName(frame),
-    m_needHiddenDirs("Analyze files int hidden folders"),
+    m_needHiddenDirs("Analyze files in hidden folders"),
     m_needHiddenFiles("Analyze hidden files"),
     m_needOutput("Full Output")
 {
@@ -49,13 +50,6 @@ HDDWidget::HDDWidget(QString path, QString mask, QString frame, QWidget *parent)
     connect(&m_watcher, SIGNAL(directoryChanged(QString)), SLOT(dirChanged()));
     connect(&m_needOutput, SIGNAL(clicked(bool)), SLOT(outputChkBoxClicked()));
     connect(m_agent, SIGNAL(pfinished(QString)), SLOT(dataCollectionFinished(QString)));
-
-    // Text coloring
-    m_editText.setColor(QPalette::Text, Qt::green);
-    m_lDir.setPalette(m_editText);
-    m_lMask.setPalette(m_editText);
-    m_lFName.setPalette(m_editText);
-
 
 }
 
