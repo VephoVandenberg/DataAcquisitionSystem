@@ -1,3 +1,4 @@
+
 #include "agent.h"
 #include <iostream>
 
@@ -37,7 +38,7 @@ void Agent::start()
     m_output->append("List of files has been recieved, files to process:" + QString::number(len));
     m_resultFName = "build/analysisResults/HDD/" + m_resultFName;
 
-    m_analyzerProcess.start("python3 src/PARSERS/HDD_parser.py build/flist " + m_resultFName + " -o");
+    m_analyzerProcess.start("python3 src/PARSERS/HDD_parser.py build/flist " + m_resultFName + (m_outputFlag ? " -o" : ""));
      
 }
 
@@ -46,7 +47,6 @@ void Agent::parserSendData()
     QString result = QString::fromLocal8Bit(m_analyzerProcess.readAll());
     foreach(QString str, result.split('\n'))
     {
-	std::cout << str.toStdString() << std::endl;
 	if (str.startsWith("[warn]"))
 	{
 	    continue;
