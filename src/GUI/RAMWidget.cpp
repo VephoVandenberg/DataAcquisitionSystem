@@ -8,7 +8,7 @@
 #include "RAMWidget.h"
 
 RAMWidget::RAMWidget(QString currentFName, QWidget *parent) :
-    QWidget(parent), m_label1("Result file"),m_label2("Choose memory dump"), m_label3("System profile"),
+    QWidget(parent), m_label1("Report file"),m_label2("Choose memory dump"), m_label3("System profile"),
     m_start("Start"), m_browse("Browse dump"), m_dumpFromCurrMachine("My computer dump"), m_saveRawDump("Save dump"), m_saveTempFiles("Save temporary files"), m_psscan("Scan process objects"), m_pslist("All running processes"), m_sockscan("Scan sockets"),  m_dumper(this)
 {
     m_timer = new QTimer(this);
@@ -164,8 +164,12 @@ void RAMWidget::startBtnClicked()
 
 // Get your kernels profile
 	m_output.append("Determine profile");
+	m_dumper.start("sudo python build/memory/buileKernelProfile.sh");
+	m_dumper.waitForStarted(18000);
+	m_dumper.waitForFinished();
+	m_output.append("Determine profile");
 	m_dumper.start("sudo python /opt/volatility/vol.py --info");
-	m_dumper.waitForStarted(180000);
+	m_dumper.waitForStarted(18000);
 	m_dumper.waitForFinished();
 	m_currentEdge = 50;
 	compliteProgress(m_currentEdge);
