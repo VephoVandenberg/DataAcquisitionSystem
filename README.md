@@ -4,3 +4,6 @@ This is my final year diploma project. System gathers information from different
 
 # Used tools
 Projects was written using C++ and Qt for a better overall performance. report csv files were constructed with Python, filterning output ot utils.
+
+# Requirements
+In order to have a proper work of the program. You have to clone [LiME](https://github.com/504ensicsLabs/LiME) and [Volatility](https://github.com/volatilityfoundation/volatility) to /opt/.
