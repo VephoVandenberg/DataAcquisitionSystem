@@ -6,4 +6,4 @@ This is my final year diploma project. System gathers information from different
 Projects was written using C++ and Qt for a better overall performance. report csv files were constructed with Python, filterning output ot utils. Also app requires both versions of python 2.x and 3.x for volatility and python scripts correspondingly.
 
 # Requirements
-In order to have a proper work of the program. You have to clone [LiME](https://github.com/504ensicsLabs/LiME) and [Volatility](https://github.com/volatilityfoundation/volatility) to /opt/.
+In order to have a proper work of the program. You have to clone [LiME](https://github.com/504ensicsLabs/LiME) and [Volatility](https://github.com/volatilityfoundation/volatility) to /opt/. You have to launch project from the project directory that means you should perform cd to projectPath. And launch the app out there ./build/UniversityProject.
