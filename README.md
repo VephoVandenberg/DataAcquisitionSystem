@@ -9,4 +9,4 @@ Projects was written using C++ and Qt for a better overall performance. report c
 In order to have a proper work of the program. You have to clone [LiME](https://github.com/504ensicsLabs/LiME) and [Volatility](https://github.com/volatilityfoundation/volatility) to /opt/. You have to launch project from the project directory that means you should perform cd to projectPath. And launch the app out there ./build/UniversityProject.
 
 # Ahtung
-App doesn't work on Windows, yet.
+App doesn't work on Windows, yet. And [Volatility](https://github.com/volatilityfoundation/volatility) doesn't process dumps of some Linux kernels, so check that out before start.
