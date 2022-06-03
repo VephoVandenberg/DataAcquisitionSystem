@@ -7,3 +7,6 @@ Projects was written using C++ and Qt for a better overall performance. report c
 
 # Requirements
 In order to have a proper work of the program. You have to clone [LiME](https://github.com/504ensicsLabs/LiME) and [Volatility](https://github.com/volatilityfoundation/volatility) to /opt/. You have to launch project from the project directory that means you should perform cd to projectPath. And launch the app out there ./build/UniversityProject.
+
+# Ahtung
+App doesn't work on Windows, yet.
