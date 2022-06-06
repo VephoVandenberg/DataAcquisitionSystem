@@ -10,3 +10,7 @@ In order to have a proper work of the program. You have to clone [LiME](https://
 
 # Ahtung
 App doesn't work on Windows, yet. And [Volatility](https://github.com/volatilityfoundation/volatility) doesn't process dumps of some Linux kernels, so check that out before start.
+
+# Further upgrades
+- Achieve work of program on different platforms
+- Maybe write your own system tools
